@@ -1,18 +1,17 @@
-# Salesforce DX Project: Next Steps
+# Horizon CX - Salesforce Developer Challenge
 
-Now that you’ve created a Salesforce DX project, what’s next? Here are some documentation resources to get you started.
+## Descripción
+Este proyecto implementa las siguientes funcionalidades sobre una org de Salesforce:
+- Sincronización diaria de datos de países desde la API de countrylayer hacia un objeto custom `Country__c`
+- Un trigger en Lead que completa los campos de región y capital en base al código de país del lead
+- Una regla de validación que restringe el cambio de propietario en Leads a menos que ciertos campos estén completos, con excepciones por perfil
+- Un flow que registra la fecha y hora de asignación del propietario de un Lead
 
-## How Do You Plan to Deploy Your Changes?
+## Decisiones de diseño
+- **Custom Metadata Type** (`External_API_Configuration__mdt`) se utilizó para almacenar el endpoint y la clave de la API, lo que permite desplegar la configuración entre entornos sin modificar código. Se descartó Named Credential ya que está orientado a flujos de autenticación (OAuth, certificados) y resulta excesivo para una clave estática.
+- **Upsert completo en cada sincronización** en lugar de comparar registros, dado que la API no provee un endpoint de cambios y el volumen (~250 países) es bajo. Se utiliza `Alpha_2_Code__c` como ID externo.
+- **`SyncCountriesQueueable`** gestiona el callout e es invocado por `SyncCountriesSchedule`, ya que las clases Schedulable no permiten callouts directamente.
 
-Do you want to deploy a set of changes, or create a self-contained application? Choose a [development model](https://developer.salesforce.com/tools/vscode/en/user-guide/development-models).
-
-## Configure Your Salesforce DX Project
-
-The `sfdx-project.json` file contains useful configuration information for your project. See [Salesforce DX Project Configuration](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_ws_config.htm) in the _Salesforce DX Developer Guide_ for details about this file.
-
-## Read All About It
-
-- [Salesforce Extensions Documentation](https://developer.salesforce.com/tools/vscode/)
-- [Salesforce CLI Setup Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_intro.htm)
-- [Salesforce DX Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_intro.htm)
-- [Salesforce CLI Command Reference](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference.htm)
+## Supuestos
+- El requerimiento del trigger ("mostrar información en los leads basándose en su país") fue interpretado como la población de los campos `Country_Capital__c` y `Country_Region__c` en el Lead, cruzando el campo estándar `CountryCode` con los registros de `Country__c`.
+- El campo `regionalBlocs` ya no es devuelto por la API de countrylayer a pesar de estar documentado. La lógica de parsing está implementada y cubierta por los tests mediante datos mockeados.
