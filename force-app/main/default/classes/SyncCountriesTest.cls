@@ -15,7 +15,6 @@ public with sharing class SyncCountriesTest {
         System.enqueueJob(new SyncCountriesQueueable());
         Test.stopTest();
         Country__c c = [SELECT Name, Alpha_2_Code__c, Alpha_3_Code__c, Capital__c, Region__c, Regional_Blocs__c FROM Country__c WHERE Alpha_2_Code__c = 'ES' LIMIT 1];
-        Assert.isNotNull(c);
         Assert.areEqual('Spain', c.Name);
         Assert.areEqual('ESP', c.Alpha_3_Code__c);
         Assert.areEqual('Madrid', c.Capital__c);

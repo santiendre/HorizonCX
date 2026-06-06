@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : Santiago Endre
  * @group             : 
- * @last modified on  : 06-05-2026
+ * @last modified on  : 06-06-2026
  * @last modified by  : Santiago Endre
 **/
 public with sharing class LeadTriggerHandler {
@@ -21,6 +21,9 @@ public with sharing class LeadTriggerHandler {
                         Country__c c = countriesByCode.get(countryCode);
                         l.Country_Capital__c = c.Capital__c;
                         l.Country_Region__c = c.Region__c;
+                    } else {
+                        l.Country_Capital__c = null;
+                        l.Country_Region__c = null;
                     }
                 }
             }

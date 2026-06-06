@@ -18,10 +18,7 @@ public with sharing class SyncCountriesQueueable implements Queueable, Database.
         req.setMethod('GET');
         req.setTimeout(120000);
         try {
-            System.debug(path);
             HttpResponse res = http.send(req);
-            System.debug(res.getStatusCode());
-            System.debug(res.getBody());
             if (res.getStatusCode() == 200) {
                 List<CountryWrapper> wrapperList = (List<CountryWrapper>)JSON.deserialize(res.getBody(), List<CountryWrapper>.class);
                 List<Country__c> countries = new List<Country__c>();
@@ -43,6 +40,9 @@ public with sharing class SyncCountriesQueueable implements Queueable, Database.
                                                 Regional_Blocs__c = regionalBlocs));
                 }
                 Database.upsert(countries, Country__c.Alpha_2_Code__c, false);
+            } else {
+                System.debug(res.getStatusCode());
+                System.debug(res.getBody());
             }
         } catch (Exception e) {
             System.debug(e.getMessage());
