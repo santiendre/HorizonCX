@@ -13,6 +13,7 @@ public with sharing class LeadTriggerHandler {
             for (Country__c c : [SELECT Alpha_2_Code__c, Capital__c, Region__c FROM Country__c]) {
                 countriesByCode.put(c.Alpha_2_Code__c, c);
             }
+
             for (Lead l : (List<Lead>)Trigger.new) {
                 String countryCode = l.CountryCode;
                 if (Trigger.isInsert || Trigger.isUpdate) {
