@@ -19,7 +19,8 @@ public with sharing class SyncCountriesQueueable implements Queueable, Database.
         req.setTimeout(120000);
         try {
             HttpResponse res = http.send(req);
-            if (res.getStatusCode() == 200) {
+            Integer statusCode = res.getStatusCode();
+            if (statusCode == 200) {
                 List<CountryWrapper> wrapperList = (List<CountryWrapper>)JSON.deserialize(res.getBody(), List<CountryWrapper>.class);
                 List<Country__c> countries = new List<Country__c>();
                 for (CountryWrapper cw : wrapperList) {
@@ -40,8 +41,16 @@ public with sharing class SyncCountriesQueueable implements Queueable, Database.
                                                 Regional_Blocs__c = regionalBlocs));
                 }
                 Database.upsert(countries, Country__c.Alpha_2_Code__c, false);
+            } else if (statusCode == 401 || statusCode == 429) {
+                System.debug(statusCode);
+                System.debug(res.getBody());
+                Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+                mail.setToAddresses(new List<String>{config.Notification_Email__c});
+                mail.setSubject('Country Sync Error - ' + res.getStatusCode());
+                mail.setPlainTextBody('The country sync job failed with status ' + res.getStatusCode() + ': ' + res.getBody());
+                Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{ mail });
             } else {
-                System.debug(res.getStatusCode());
+                System.debug(statusCode);
                 System.debug(res.getBody());
             }
         } catch (Exception e) {

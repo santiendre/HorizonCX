@@ -10,4 +10,8 @@
         <field>Endpoint__c</field>
         <value xsi:type="xsd:string">https://api.countrylayer.com/v2/all</value>
     </values>
+    <values>
+        <field>Notification_Email__c</field>
+        <value xsi:type="xsd:string">santiendre@gmail.com</value>
+    </values>
 </CustomMetadata>

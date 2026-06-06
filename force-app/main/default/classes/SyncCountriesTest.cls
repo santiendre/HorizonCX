@@ -9,8 +9,8 @@
 public with sharing class SyncCountriesTest {
 
     @isTest
-    public static void calloutTest() {
-        Test.setMock(HttpCalloutMock.class, new SyncCountriesCalloutMock());
+    public static void calloutSuccessTest() {
+        Test.setMock(HttpCalloutMock.class, new SyncCountriesCalloutMock(200));
         Test.startTest();
         System.enqueueJob(new SyncCountriesQueueable());
         Test.stopTest();
@@ -24,10 +24,19 @@ public with sharing class SyncCountriesTest {
     }
 
     @isTest
+    public static void calloutErrorTest() {
+        Test.setMock(HttpCalloutMock.class, new SyncCountriesCalloutMock(401));
+        Test.startTest();
+        System.enqueueJob(new SyncCountriesQueueable());
+        Test.stopTest();
+        Assert.areEqual(0, [SELECT Id FROM Country__c].size());
+    }
+
+    @isTest
     public static void scheduleTest() {
         String CRON_EXP = '0 0 0 * * ?';
 		Test.startTest();
-      	String jobId = System.schedule('SyncCountries', CRON_EXP, new SyncCountriesSchedule());
+      	String jobId = System.schedule('SyncCountriesTest', CRON_EXP, new SyncCountriesSchedule());
 		Test.stopTest();   
 		CronTrigger ct = [SELECT CronExpression, TimesTriggered FROM CronTrigger WHERE id = :jobId];
         Assert.areEqual('0 0 0 * * ?', ct.CronExpression);
