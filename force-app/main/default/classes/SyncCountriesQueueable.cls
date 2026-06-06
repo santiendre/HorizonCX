@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : Santiago Endre
  * @group             : 
- * @last modified on  : 06-05-2026
+ * @last modified on  : 06-06-2026
  * @last modified by  : Santiago Endre
 **/
 public with sharing class SyncCountriesQueueable implements Queueable, Database.AllowsCallouts {
@@ -30,7 +30,7 @@ public with sharing class SyncCountriesQueueable implements Queueable, Database.
                     if (cw.regionalBlocs != null) {
                         for (RegionalBloc rb : cw.regionalBlocs) {
                             if (!String.isBlank(regionalBlocs)) {
-                                regionalBlocs += ';';
+                                regionalBlocs += '; ';
                             }
                             regionalBlocs += rb.acronym;
                         }
